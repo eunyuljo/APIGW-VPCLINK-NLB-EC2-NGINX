@@ -1,0 +1,30 @@
+# Terraform 상태 파일
+*.tfstate
+*.tfstate.*
+
+# Terraform 변수 파일 (보통 민감한 정보를 포함할 수 있음)
+*.tfvars
+*.tfvars.json
+
+# Terraform 실행 플랜
+*.tfplan
+
+# 자동 생성된 파일 및 디렉터리
+.crash/
+*.log
+*.backup
+*.override
+*.terraformrc
+terraform.rc
+
+# 디렉터리 내 숨김 파일 및 임시 파일
+.terraform/
+.terraform.lock.hcl
+
+# MacOS 및 Linux에서 생성되는 시스템 파일
+.DS_Store
+*.swp
+
+# Windows에서 생성되는 시스템 파일
+Thumbs.db
+
