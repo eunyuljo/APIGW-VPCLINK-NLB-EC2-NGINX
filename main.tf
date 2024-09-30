@@ -296,3 +296,25 @@ resource "aws_acm_certificate" "main" {
     Name = "api-cert"
   }
 }
+
+
+# Route 53 Private Hosted Zone 생성
+resource "aws_route53_zone" "private_zone" {
+  name = "fnfdns.com"
+  vpc {
+    vpc_id = aws_vpc.main.id
+  }
+}
+
+# Route 53 A 레코드 생성 (test.fnfdns.com을 NLB로 가리킴)
+resource "aws_route53_record" "test_subdomain" {
+  zone_id = aws_route53_zone.private_zone.zone_id  # Private Hosted Zone의 ID
+  name    = "test.fnfdns.com"                      # 서브도메인 레코드 이름
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.nlb.dns_name  # NLB의 DNS 이름
+    zone_id                = aws_lb.nlb.zone_id   # NLB의 호스트존 ID
+    evaluate_target_health = false  # NLB 헬스체크를 필요에 따라 평가 (default: false)
+  }
+}
