@@ -2,6 +2,8 @@ provider "aws" {
   region = "ap-northeast-2" # 원하는 리전으로 설정
 }
 
+########################################################################################################
+
 # VPC 생성
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
@@ -124,6 +126,8 @@ resource "aws_security_group" "ec2_sg" {
   }
 }
 
+########################################################################################################
+
 # IAM 역할 생성 (SSM 정책 연결)
 resource "aws_iam_role" "ec2_ssm_role" {
   name = "ec2-ssm-role"
@@ -193,6 +197,8 @@ resource "aws_instance" "nginx" {
   }
 }
 
+########################################################################################################
+
 # NLB 생성 (Private Subnet 2개에 배치)
 resource "aws_lb" "nlb" {
   name               = "api-nlb"
@@ -235,6 +241,8 @@ resource "aws_lb_target_group_attachment" "tg_attachment" {
   port             = 80
 }
 
+########################################################################################################
+
 # VPC Link 생성 (API Gateway가 Internal NLB에 접근할 수 있도록)
 resource "aws_api_gateway_vpc_link" "vpc_link" {
   name = "api-gateway-vpc-link"
@@ -269,10 +277,11 @@ resource "aws_api_gateway_integration" "api_integration" {
   http_method             = aws_api_gateway_method.get_method.http_method
   integration_http_method = "GET"
   type                    = "HTTP_PROXY"
-  uri                     = "http://${aws_lb.nlb.dns_name}"  # NLB의 내부 DNS 이름 사용
+  uri                     = "https://${aws_lb.nlb.dns_name}"  # NLB의 내부 DNS 이름 사용
   connection_type         = "VPC_LINK"  # VPC Link 사용
   connection_id           = aws_api_gateway_vpc_link.vpc_link.id  # VPC Link ID 설정
 }
+
 
 # API 배포
 resource "aws_api_gateway_deployment" "api_deployment" {
@@ -286,6 +295,10 @@ resource "aws_api_gateway_stage" "api_stage" {
   deployment_id = aws_api_gateway_deployment.api_deployment.id
   stage_name    = "dev"
 }
+
+
+
+########################################################################################################
 
 # ACM 인증서 생성
 resource "aws_acm_certificate" "main" {
@@ -318,3 +331,5 @@ resource "aws_route53_record" "test_subdomain" {
     evaluate_target_health = false  # NLB 헬스체크를 필요에 따라 평가 (default: false)
   }
 }
+
+########################################################################################################
